@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Livres</title>
+    <style>
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            font-size: 18px;
+            text-align: left;
+        }
+        table, th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <h1>Liste des Livres</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>Catégorie</th>
+                <th>Année de Publication</th>
+                <th>Statut</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for livre in data %}
+            <tr>
+                <td>{{ livre['id'] }}</td>
+                <td>{{ livre['title'] }}</td>
+                <td>{{ livre['author'] }}</td>
+                <td>{{ livre['category'] }}</td>
+                <td>{{ livre['year_published'] }}</td>
+                <td>{{ livre['status'] }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>
