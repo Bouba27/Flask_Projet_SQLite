@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire d'enregistrement d'un nouveau livre</title>
+</head>
+<body>
+    <h1>Enregistrer un nouveau livre</h1>
+    <form action="{{ url_for('enregistrer_livre') }}" method="POST">  <!-- Utilisation de Flask pour générer l'URL -->
+        <label for="titre">Titre du livre :</label>
+        <input type="text" id="titre" name="titre" required><br><br>
+
+        <label for="auteur">Auteur :</label>
+        <input type="text" id="auteur" name="auteur" required><br><br>
+
+        <label for="categorie">Catégorie :</label>
+        <input type="text" id="categorie" name="categorie"><br><br>
+
+        <label for="annee_publication">Année de publication :</label>
+        <input type="number" id="annee_publication" name="annee_publication"><br><br>
+
+        <button type="submit">Enregistrer</button>
+    </form>
+</body>
+</html>
