@@ -39,19 +39,19 @@ def authentification():
 
     return render_template('formulaire_authentification.html', error=False)
 
-# Nouvelle route d'authentification spécifique pour /fiche_nom/
-@app.route('/authentification_user', methods=['GET', 'POST'])
-def authentification_user():
-    if request.method == 'POST':
-        # Vérifie les identifiants pour la route protégée /fiche_nom/
-        if request.form['username'] == 'user' and request.form['password'] == '12345':
-            session['user'] = '12345'  # Stocke l'authentification dans la session
-            return redirect(url_for('recherche_par_nom'))
-        else:
-            # Retourne un message d'erreur si l'authentification échoue
-            return render_template('formulaire_authentification_user.html', error=True)
+@app.route('/fiche_nom/', methods=['GET'])
+def recherche_par_nom():
+    nom = request.args.get('nom')  # Récupère le nom depuis les paramètres de l'URL
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
+    data = cursor.fetchall()
+    conn.close()
 
-    return render_template('formulaire_authentification_user.html', error=False)
+    if data:
+        return render_template('read_data.html', data=data)
+    else:
+        return jsonify({"message": "Client non trouvé"}), 404
 
 # Route pour afficher la fiche client par ID
 @app.route('/fiche_client/<int:post_id>')
