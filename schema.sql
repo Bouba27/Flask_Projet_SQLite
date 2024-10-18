@@ -5,4 +5,10 @@ CREATE TABLE clients (
     nom TEXT NOT NULL,
     prenom TEXT NOT NULL,
     adresse TEXT NOT NULL
+
+    
 );
+CREATE TABLE livre (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nom TEXT NOT NULL,
+    );
