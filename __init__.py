@@ -1,118 +1,63 @@
-from flask import Flask, render_template, jsonify, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session
 import sqlite3
 
-app = Flask(__name__)                                                                                                                  
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
+# Initialisation de l'application Flask
+app = Flask(__name__)
+app.secret_key = 'votre_cle_secrete'  # Clé secrète pour les sessions
 
-# Fonction pour vérifier si l'utilisateur est authentifié (pour l'admin)
-def est_authentifie():
-    return session.get('authentifie')
+# Connexion à la base de données
+def get_db_connection():
+    conn = sqlite3.connect('database.db')
+    conn.row_factory = sqlite3.Row  # Permet de retourner les lignes sous forme de dictionnaire
+    return conn
 
-# Fonction pour vérifier si l'utilisateur est authentifié pour /fiche_nom/
-def est_user_authentifie():
-    return session.get('user') == '12345'
-
+# Page d'accueil
 @app.route('/')
-def hello_world():
-    return render_template('hello.html')
+def home():
+    return render_template('home.html')
 
-@app.route('/lecture')
-def lecture():
-    if not est_authentifie():
-        # Rediriger vers la page d'authentification si l'utilisateur n'est pas authentifié
-        return redirect(url_for('authentification'))
-
-    # Si l'utilisateur est authentifié
-    return "<h2>Bravo, vous êtes authentifié</h2>"
-
-@app.route('/authentification', methods=['GET', 'POST'])
-def authentification():
-    if request.method == 'POST':
-        # Vérifier les identifiants administrateurs
-        if request.form['username'] == 'admin' and request.form['password'] == 'password':  # password à cacher par la suite
-            session['authentifie'] = True
-            # Rediriger vers la route lecture après une authentification réussie
-            return redirect(url_for('lecture'))
-        else:
-            # Afficher un message d'erreur si les identifiants sont incorrects
-            return render_template('formulaire_authentification.html', error=True)
-
-    return render_template('formulaire_authentification.html', error=False)
-
-@app.route('/fiche_nom/', methods=['GET'])
-def recherche_par_nom():
-    nom = request.args.get('nom')  # Récupère le nom depuis les paramètres de l'URL
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
-    data = cursor.fetchall()
-    conn.close()
-
-    if data:
-        return render_template('read_data.html', data=data)
-    else:
-        return jsonify({"message": "Client non trouvé"}), 404
-
-# Route pour afficher la fiche client par ID
-@app.route('/fiche_client/<int:post_id>')
-def Readfiche(post_id):
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients WHERE id = ?', (post_id,))
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('read_data.html', data=data)
-
-# Route pour consulter tous les clients
-@app.route('/consultation/')
-def ReadBDD():
-    conn = sqlite3.connect('database.db')
-    cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients;')
-    data = cursor.fetchall()
-    conn.close()
-    return render_template('read_data.html', data=data)
-
-# Route pour afficher le formulaire de création d'un client
+# Route pour afficher le formulaire d'enregistrement d'un client
 @app.route('/enregistrer_client', methods=['GET'])
 def formulaire_client():
-    return render_template('formulaire.html')
+    return render_template('formulaire.html')  # Affiche le formulaire d'ajout de client
 
-# Route pour enregistrer un client dans la base de données
+# Route pour traiter l'enregistrement d'un client
 @app.route('/enregistrer_client', methods=['POST'])
 def enregistrer_client():
     nom = request.form['nom']
     prenom = request.form['prenom']
+    adresse = request.form['adresse']
 
-    # Connexion à la base de données
-    conn = sqlite3.connect('database.db')
+    # Connexion à la base de données et insertion du client
+    conn = get_db_connection()
     cursor = conn.cursor()
-
-    # Exécution de la requête SQL pour insérer un nouveau client
-    cursor.execute('INSERT INTO clients (created, nom, prenom, adresse) VALUES (?, ?, ?, ?)', (1002938, nom, prenom, "ICI"))
+    cursor.execute('INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)', (nom, prenom, adresse))
     conn.commit()
     conn.close()
-    return redirect('/consultation/')  # Rediriger vers la page de consultation après l'enregistrement
 
-# Nouvelle route pour rechercher un client par nom
-@app.route('/fiche_nom/', methods=['GET'])
-def recherche_par_nom():
-    # Vérification des identifiants pour la route /fiche_nom/
-    if not est_user_authentifie():
-        return redirect(url_for('authentification_user'))
+    # Redirige vers la page de consultation après l'ajout
+    return redirect(url_for('consulter_clients'))
 
-    nom = request.args.get('nom')  # Récupère le nom depuis les paramètres de l'URL
-    conn = sqlite3.connect('database.db')
+# Route pour consulter tous les clients enregistrés
+@app.route('/consultation/')
+def consulter_clients():
+    conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
-    data = cursor.fetchall()
+    cursor.execute('SELECT * FROM clients')
+    clients = cursor.fetchall()
     conn.close()
+    
+    return render_template('read_data.html', data=clients)
 
-    if data:
-        return render_template('read_data.html', data=data)
-    else:
-        return jsonify({"message": "Client non trouvé"}), 404
+# Fermer la base de données à la fin de chaque requête
+@app.teardown_appcontext
+def close_db_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
+# Lancement de l'application
 if __name__ == "__main__":
     app.run(debug=True)
+
 
