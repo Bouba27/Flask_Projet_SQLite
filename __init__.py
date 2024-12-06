@@ -14,6 +14,11 @@ def est_authentifie():
 def hello_world():
     return render_template('hello.html')
 
+@app.route('/inscription', methods=['GET', 'POST'])
+def inscription():
+    # Code de l'inscription
+
+
 # Route pour l'authentification
 @app.route('/authentification', methods=['GET', 'POST'])
 def authentification():
