@@ -8,6 +8,11 @@ def NomFiche(nom):
     conn.close()
     return render_template('read_data.html', data=data)
 
+@app.route('/test')
+def test():
+    return "L'application fonctionne !"
+
+
 # Route pour consulter tous les clients
 @app.route('/consultation/')
 def ReadBDD():
