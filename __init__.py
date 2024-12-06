@@ -1,64 +1,104 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-import sqlite3
-from werkzeug.utils import secure_filename
+# Route pour consulter un client par nom
+@app.route('/fiche_nom/<string:nom>')
+def NomFiche(nom):
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients WHERE nom = ?', (nom,))
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('read_data.html', data=data)
 
-app = Flask(__name__)
-app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
+# Route pour consulter tous les clients
+@app.route('/consultation/')
+def ReadBDD():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM clients;')
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('read_data.html', data=data)
 
-# Fonction pour vérifier si l'utilisateur est authentifié
-def est_authentifie():
-    return session.get('authentifie')
+# Route pour consulter tous les livres
+@app.route('/consultation_livre/')
+def consultation_livre():
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('SELECT * FROM livres;')
+    data = cursor.fetchall()
+    conn.close()
+    return render_template('read_data_livre.html', data=data)
 
-# Route pour l'accueil
-@app.route('/')
-def hello_world():
-    return render_template('hello.html')
+# Route pour afficher le formulaire d'enregistrement de client
+@app.route('/enregistrer_client', methods=['GET'])
+def formulaire_client():
+    return render_template('formulaire.html')  # afficher le formulaire de client
 
-@app.route('/inscription', methods=['GET', 'POST'])
-def inscription():
-    # Code de l'inscription
+# Route pour enregistrer un client
+@app.route('/enregistrer_client', methods=['POST'])
+def enregistrer_client():
+    nom = request.form['nom']
+    prenom = request.form['prenom']
 
+    # Connexion à la base de données
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO clients (created, nom, prenom, adresse) VALUES (?, ?, ?, ?)', (1002938, nom, prenom, "ICI"))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('ReadBDD'))
 
-# Route pour l'authentification
-@app.route('/authentification', methods=['GET', 'POST'])
-def authentification():
-    if request.method == 'POST':
-        # Vérifier les identifiants
-        if request.form['username'] == 'admin' and request.form['password'] == 'password':  
-            session['authentifie'] = True
-            return redirect(url_for('hello_world'))
-        else:
-            return "Échec de l'authentification, veuillez réessayer."
-    return render_template('formulaire_authentification.html')
+# Route pour afficher le formulaire d'enregistrement de livre
+@app.route('/enregistrer_livre', methods=['GET'])
+def formulaire_livre():
+    return render_template('formulaire_livre.html')  # afficher le formulaire de livre
 
-# Route pour enregistrer un nouveau livre
-@app.route('/enregistrer_livre', methods=['GET', 'POST'])
+# Route pour enregistrer un livre
+@app.route('/enregistrer_livre', methods=['POST'])
 def enregistrer_livre():
-    if not est_authentifie():
-        return redirect(url_for('authentification'))
+    titre = request.form['titre']
+    auteur = request.form['auteur']
+
+    # Connexion à la base de données
+    conn = sqlite3.connect('database.db')
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO livres (titre, auteur) VALUES (?, ?)', (titre, auteur))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('consultation_livre'))
+
+# Route pour supprimer un livre
+@app.route('/supprimer_livre', methods=['GET', 'POST'])
+def supprimer_livre():
+    message = ""
 
     if request.method == 'POST':
-        # Récupérer les données du formulaire
-        titre = request.form['titre']
-        auteur = request.form['auteur']
-        categorie = request.form['categorie']
-        annee = request.form['annee']
-
-        # Ajouter le livre à la base de données (exemple SQLite)
-        conn = sqlite3.connect('bibliotheque.db')
+        livre_id = request.form['id']
+        
+        # Connexion à la base de données
+        conn = sqlite3.connect('database.db')
         cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO livres (titre, auteur, categorie, annee) VALUES (?, ?, ?, ?)", 
-            (titre, auteur, categorie, annee)
-        )
-        conn.commit()
+
+        # Vérifier si le livre existe
+        cursor.execute('SELECT * FROM livres WHERE id = ?', (livre_id,))
+        livre = cursor.fetchone()
+        
+        if livre:
+            # Supprimer le livre
+            cursor.execute('DELETE FROM livres WHERE id = ?', (livre_id,))
+            conn.commit()
+            message = f"Le livre avec l'ID {livre_id} a été supprimé."
+        else:
+            message = f"Aucun livre trouvé avec l'ID {livre_id}."
+
         conn.close()
-        return "Livre enregistré avec succès."
-    
-    return render_template('formulaire_livre.html')
+
+    return render_template('supprimer_livre.html', message=message)
 
 if __name__ == "__main__":
     app.run(debug=True)
+
+
+
 
 
 
