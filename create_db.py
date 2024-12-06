@@ -1,7 +1,7 @@
 import sqlite3
 
 # Connexion à la base de données (ou création si elle n'existe pas)
-conn = sqlite3.connect('bibliotheque.db')
+conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
 # Création de la table des utilisateurs
