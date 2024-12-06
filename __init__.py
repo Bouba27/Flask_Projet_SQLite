@@ -10,6 +10,12 @@ app.secret_key = b'_5#y2L"F4Q8z\n\xec]/'  # Clé secrète pour les sessions
 def est_authentifie():
     return session.get('authentifie')
 
+
+    # Code de l'inscription
+@app.route('/inscription', methods=['GET', 'POST'])
+def inscription():
+   
+    
 # Route pour l'accueil
 @app.route('/')
 def hello_world():
