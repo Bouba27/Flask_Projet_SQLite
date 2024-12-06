@@ -1,32 +1,22 @@
 import sqlite3
 
-# Initialisation de la base de données
-conn = sqlite3.connect('database.db')
-cursor = conn.cursor()
+connection = sqlite3.connect('database.db')
 
-# Création de la table des utilisateurs
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS utilisateurs (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    username TEXT NOT NULL UNIQUE,
-    password TEXT NOT NULL
-)
-""")
+with open('schema.sql') as f:
+    connection.executescript(f.read())
 
-# Création de la table des livres
-cursor.execute("""
-CREATE TABLE IF NOT EXISTS livres (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    titre TEXT NOT NULL,
-    auteur TEXT NOT NULL,
-    categorie TEXT,
-    annee_publication INTEGER
-)
-""")
+cur = connection.cursor()
 
-conn.commit()
-conn.close()
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('DUPONT', 'Emilie', '123, Rue des Lilas, 75001 Paris'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('LEROUX', 'Lucas', '456, Avenue du Soleil, 31000 Toulouse'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('MARTIN', 'Amandine', '789, Rue des Érables, 69002 Lyon'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('TREMBLAY', 'Antoine', '1010, Boulevard de la Mer, 13008 Marseille'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('LAMBERT', 'Sarah', '222, Avenue de la Liberté, 59000 Lille'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('GAGNON', 'Nicolas', '456, Boulevard des Cerisiers, 69003 Lyon'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('DUBOIS', 'Charlotte', '789, Rue des Roses, 13005 Marseille'))
+cur.execute("INSERT INTO clients (nom, prenom, adresse) VALUES (?, ?, ?)",('LEFEVRE', 'Thomas', '333, Rue de la Paix, 75002 Paris'))
 
-print("Base de données mise à jour avec succès.")
+connection.commit()
+connection.close()
 
 
