@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Liste des Livres Disponibles</title>
+</head>
+<body>
+    <h1>Liste des Livres Disponibles</h1>
+    
+    {% if books %}
+    <table border="1">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Titre</th>
+                <th>Auteur</th>
+                <th>Catégorie</th>
+                <th>Année de Publication</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for book in books %}
+            <tr>
+                <td>{{ book[0] }}</td> <!-- ID -->
+                <td>{{ book[1] }}</td> <!-- Titre -->
+                <td>{{ book[2] }}</td> <!-- Auteur -->
+                <td>{{ book[3] }}</td> <!-- Catégorie -->
+                <td>{{ book[4] }}</td> <!-- Année de Publication -->
+                <td>
+                    <form action="/borrow_book/{{ book[0] }}" method="POST">
+                        <button type="submit">Emprunter</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>Aucun livre disponible pour le moment.</p>
+    {% endif %}
+</body>
+</html>
