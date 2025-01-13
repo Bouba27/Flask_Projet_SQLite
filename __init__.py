@@ -60,6 +60,20 @@ def search_books():
             books = cursor.fetchall()
     return render_template('search_books.html', books=books, query=query)
 
+@app.route('/list_books', methods=['GET'])
+def list_books():
+    if not est_authentifie():  # Vérifie si l'utilisateur est authentifié
+        return redirect(url_for('authentification'))  # Redirection si non connecté
+
+    # Connexion à la base de données
+    with sqlite3.connect('database.db') as conn:
+        cursor = conn.cursor()
+        cursor.execute("SELECT * FROM livres WHERE disponible = 1")
+        books = cursor.fetchall()  # Récupère les livres disponibles
+
+    # Rend un template HTML avec la liste des livres
+    return render_template('list_books.html', books=books)
+
 
 # Route pour l'inscription
 @app.route('/inscription', methods=['GET', 'POST'])
