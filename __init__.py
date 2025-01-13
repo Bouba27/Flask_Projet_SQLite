@@ -59,6 +59,30 @@ def search_books():
             books = cursor.fetchall()
     return render_template('search_books.html', books=books, query=query)
 
+# Route pour rechercher les livres disponibles
+@app.route('/search_books', methods=['GET', 'POST'])
+def search_books():
+    if not est_authentifie():  # Vérifie si l'utilisateur est authentifié
+        return redirect(url_for('authentification'))
+    
+    query = ""  # Valeur par défaut pour la recherche
+    books = []  # Liste des résultats
+    if request.method == 'POST':
+        query = request.form['query']
+        with sqlite3.connect('database.db') as conn:
+            cursor = conn.cursor()
+            cursor.execute(
+                """
+                SELECT * FROM livres
+                WHERE disponible = 1
+                AND (titre LIKE ? OR auteur LIKE ? OR categorie LIKE ?)
+                """,
+                (f'%{query}%', f'%{query}%', f'%{query}%')
+            )
+            books = cursor.fetchall()
+    return render_template('search_books.html', books=books, query=query)
+
+
 # Route pour l'inscription
 @app.route('/inscription', methods=['GET', 'POST'])
 def inscription():
@@ -106,7 +130,7 @@ def enregistrer_livre():
         conn.close()
         return "Livre enregistré avec succès."
     return render_template('formulaire_livre.html')
-    ds
+    
 
 if __name__ == "__main__":
     app.run(debug=True)
