@@ -106,6 +106,7 @@ def enregistrer_livre():
         conn.close()
         return "Livre enregistré avec succès."
     return render_template('formulaire_livre.html')
+    ds
 
 if __name__ == "__main__":
     app.run(debug=True)
